@@ -9,7 +9,6 @@ program
   .option('-d, --display', 'вивести результат у консоль (необовʼязково)');
 
 program.parse(process.argv);
-
 const options = program.opts();
 
 if (!options.input) {
@@ -22,12 +21,20 @@ if (!fs.existsSync(options.input)) {
   process.exit(1);
 }
 
-const data = fs.readFileSync(options.input, 'utf-8');
+try {
+  const data = JSON.parse(fs.readFileSync(options.input, 'utf-8'));
 
-if (options.output) {
-  fs.writeFileSync(options.output, data, 'utf-8');
-}
+  const maxRate = Math.max(...data.map(item => item.rate));
+  const result = `Максимальний курс: ${maxRate}`;
 
-if (options.display) {
-  console.log(data);
+  if (options.output) {
+    fs.writeFileSync(options.output, result, 'utf-8');
+  }
+
+  if (options.display) {
+    console.log(result);
+  }
+} catch (error) {
+  console.error("Error processing file:", error.message);
+  process.exit(1);
 }
